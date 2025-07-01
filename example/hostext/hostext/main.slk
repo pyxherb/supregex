@@ -1,0 +1,247 @@
+module hostext;
+
+import hostext.extfns;
+
+attribute TestAttribute {
+	let test: i32;
+}
+
+interface IA {
+	fn testIA();
+}
+
+interface IB {
+	fn testIB();
+}
+
+class ImplTest: IA + IB {
+	fn testIA() {
+		extfns.print("Called testIA");
+	}
+	
+	fn testIB() {
+		extfns.print("Called testIB");
+	}
+}
+
+class InterfaceTest<T: IA + IB> {
+	fn test(instance: T) {
+		instance.testIA();
+		instance.testIB();
+	}
+}
+
+class TestParent<T> {
+	fn myTest(a: T, b: T) {
+		with T(i32) {
+			extfns.print("T = i32\n");
+		}
+		extfns.print("Called myTest: ", a, " ", b, "\n");
+		return;
+	}
+}
+
+class TestDerived<T>(TestParent<T>) {
+	fn myTest() {
+		return;
+	}
+	fn myTest(a: T) {
+		return;
+	}
+}
+
+class AnotherGeneric<X, U> {
+	class ChildGeneric<V, T(Test)> {
+		pub let xyz: i32;
+
+		pub fn _setX(abc: T) {
+			this.xyz = abc.getX();
+			extfns.print("[ChildGeneric]setX: ", this.xyz, "\n");
+			return;
+		}
+
+		pub fn _getX() -> i32 {
+			extfns.print("[ChildGeneric]Fetched xyz: ", this.xyz, "\n");
+			return this.xyz;
+		}
+	}
+}
+
+class Test {
+	pub let x: i32;
+	pub let lab: Test;
+
+	pub operator delete() {
+		extfns.print("Destructing Test...\n");
+		return;
+	}
+
+	pub operator new(x: i32) {
+		this.x = x;
+		return;
+	}
+
+	pub fn getX() -> i32 {
+		extfns.print("Fetched x: ", this.x, "\n");
+		return this.x;
+	}
+
+	pub fn test(x: i32&) {
+		x = 114514;
+		return;
+	}
+
+	pub fn testFunc(x: i32, y: i32) {
+		extfns.print("Called testFunc from Test");
+		return;
+	}
+
+	pub operator +(rhs: i32) -> i32 {
+		return this.x + rhs;
+	}
+}
+
+class Derived(Test) {
+	pub let y: i32;
+
+	pub operator delete() {
+		extfns.print("Destructing Derived...\n");
+		return;
+	}
+
+	pub operator new(y: i32) {
+		this.x = y * 2;
+		this.x = y * 4;
+		return;
+	}
+
+	pub fn getY() -> i32 {
+		extfns.print("Fetched y: ", this.y, "\n");
+		return this.y;
+	}
+
+	pub fn testFunc(x: i32) {
+		extfns.print("Called testFunc from Derived");
+		return;
+	}
+}
+
+class VirtualBase {
+	pub fn test(test: i32) virtual {
+		extfns.print("Called VirtualBase's test\n");
+		return;
+	}
+}
+
+class VirtualDerived(VirtualBase) {
+	pub fn test(test: i32) virtual {
+		extfns.print("Called VirtualDerived's test\n");
+		return;
+	}
+}
+
+fn genericFn<T, U>(t: T, u: U) {
+	return;
+}
+
+fn genericFn<U, T>(t: T, u: U) {
+	return;
+}
+
+fn test(...) {
+	//let sv: i32&& = alloca i32[123];
+	//...;
+	return;
+}
+
+// let a: fn (i32, u32, f32) with hostext.VirtualBase -> bool;
+
+class OperatorTest {
+	operator +(lhs: i32, ...) -> i32 {
+		return lhs + 114514;
+	}
+}
+
+fn t() {
+	let test: OperatorTest;
+
+	123456 + test;
+}
+
+pub fn *main() -> i32 {
+	/*a() with 123;*/
+
+	hostext.extfns.print("Entered main\n");
+
+	let vt: VirtualBase = new VirtualDerived();
+
+	vt.test(123);
+
+	let testDerived: TestDerived<i32> = new TestDerived<i32>();
+
+	testDerived.myTest(123, 456);
+
+	let test: Derived = new Derived(1);
+	/*test.lab = test;*/
+
+	test.testFunc(123, 456);
+
+	let x: AnotherGeneric<i32, f32>.ChildGeneric<f32, Test> = new AnotherGeneric<i32, f32>.ChildGeneric<f32, Test>();
+	x._setX(test);
+	x._getX();
+
+	/* extfns.print(test + 123); */
+
+	let v : u32 = 1919810 + 0;
+
+	let array: i32[] = { 12, 34, 56, 78, 114, 514, 1919, 810 };
+	v = array[2] as u32;
+
+	extfns.print("Value:", v, "\n");
+
+	while(test.x = test.x - 1) {
+		extfns.print("Yielded\n");
+		yield test.getX();
+	}
+
+	1 <=> 1;
+
+	extfns.print("Match result:", match const (123) -> i32 {
+		123: 0xffff,
+		456: 0x0000,
+		789: 0xf0f0,
+		default: 0x0f0f
+	});
+
+	switch (123) {
+		case 456:
+			extfns.print("Matched 456\n");
+		case 789:
+			extfns.print("Matched 789\n");
+		case 123:
+			extfns.print("Matched 123\n");
+		default:
+			extfns.print("Default\n");
+	}
+
+	let implTest: ImplTest = new ImplTest();
+
+	let interfaceTest: InterfaceTest<ImplTest> = new InterfaceTest<ImplTest>();
+
+	/*
+	match const (123) -> i32 {
+		456: 789,
+		abc: 0xdef
+	};*/
+
+	/*let sum: i64 = 0, i: i64 = 0;
+
+	while(i < 10000000) {
+		sum = sum + i;
+		i = i + 1;
+	}
+
+	extfns.print("Sum: ", sum, "\n");*/
+
+	return 114514;
+}
