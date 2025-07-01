@@ -51,6 +51,3 @@ install(TARGETS supregex supregexd
 )
 install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/supregex)
 
-if(WIN32)
-    add_subdirectory("win32")
-endif()
